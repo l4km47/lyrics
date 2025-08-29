@@ -50,7 +50,7 @@ audio-lyrics-visualizer
 1. Clone the repository:
    ```
    git clone <repository-url>
-   cd audio-lyrics-visualizer
+   cd lyrics
    ```
 
 2. Install dependencies:
