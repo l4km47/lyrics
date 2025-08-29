@@ -8,7 +8,7 @@ import * as THREE from "three";
 
 export default defineComponent({
   props: {
-    audioElement: { type: Object as PropType<HTMLAudioElement>, required: false },
+    audioElement: { type: Object as PropType<HTMLAudioElement| null>, required: false },
   },
   setup(props) {
     const threeCanvas = ref<HTMLCanvasElement | null>(null);
@@ -23,7 +23,7 @@ export default defineComponent({
     let rafId = 0;
 
     let analyser: AnalyserNode;
-    let dataArray: Uint8Array;
+    let dataArray: Uint8Array<ArrayBuffer>;
 
     let mouse = { x: 0, y: 0 };
 
