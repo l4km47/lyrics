@@ -1,0 +1,37 @@
+{
+  "name": "audio-lyrics-visualizer",
+  "version": "1.0.0",
+  "description": "An audio-reactive lyrics visualizer built with Vue 3 and Vite.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "dependencies": {
+    "@types/three": "^0.179.0",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "gsap": "^3.13.0",
+    "tailwindcss": "latest",
+    "three": "^0.179.1",
+    "tree": "latest",
+    "vite-plugin-vue-devtools": "^8.0.1",
+    "vue": "latest",
+    "vue-router": "latest"
+  },
+  "devDependencies": {
+    "autoprefixer": "latest",
+    "postcss": "latest",
+    "typescript": "latest",
+    "vite": "latest"
+  },
+  "keywords": [
+    "vue",
+    "audio",
+    "visualizer",
+    "lyrics",
+    "web-audio-api"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
