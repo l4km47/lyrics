@@ -12,7 +12,7 @@ This project is an audio-reactive lyrics visualizer built with Vue 3 and Vite. I
 ## Project Structure
 
 ```
-audio-lyrics-visualizer
+root
 ├── src
 │   ├── assets                # Static assets (images, audio files)
 │   ├── components            # Vue components
