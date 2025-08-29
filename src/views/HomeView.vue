@@ -1,14 +1,12 @@
 <template>
-    <button v-if="!isPlaying" @click="()=>{play();}" style="color: white;z-index: 999;"> {{ currentTime.toFixed(2) || 'Play' }}</button>
+  <div v-if="!isAudioLoaded" class="play-btn">
+    <button @click="() => { startAudio(); }" style="color: white;z-index: 999;"> {{'Start'
+      }}</button>
+  </div>
   <div class="home-view">
     <Visualizer v-if="isAudioLoaded" :audio-element="audioElement" />
-    <LyricsVisualizer 
-      v-if="isAudioLoaded"
-      font-url="Noto Sans Sinhala_Regular.json"
-      :lyrics="lyrics" 
-      :audio-element="audioElement"
-      :current-time="currentTime"
-    />
+    <LyricsVisualizer v-if="isAudioLoaded" font-url="Noto Sans Sinhala_Regular.json" :lyrics="lyrics"
+      :audio-element="audioElement" :current-time="currentTime" />
 
   </div>
 </template>
@@ -18,63 +16,57 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import Visualizer from '../components/Visualizer.vue';
 import LyricsVisualizer from '@/components/LyricsVisualizer.vue';
 import { LyricLine } from '@/types';
-import AudioPlayer from '@/components/AudioPlayer.vue';
 
 export default {
-  components: { Visualizer, LyricsVisualizer,AudioPlayer },
+  components: { Visualizer, LyricsVisualizer },
   setup() {
     const audioElement = ref<HTMLAudioElement | null>(null);
     const lyrics = ref<LyricLine[]>([]);
     const currentTime = ref(0);
-    let rafId: number | null = null;
     const isAudioLoaded = ref(false);
-    const isPlaying=ref(false);
+    const isPlaying = ref(false);
+    let rafId: number | null = null;
 
-    const play = () => {
-      console.log(audioElement.value)
-      if (audioElement.value) {
-        audioElement.value.play().then(() => {
-          startTrackingTime();
-          isPlaying.value=true;
-        });
-        audioElement.value.addEventListener('ended', stopTrackingTime);
+    onMounted( () => {
+      
+    });
 
-      }
-    };
-
-    const loadAudioAndLyrics = async () => {
-      // Create audio element
-      audioElement.value = document.createElement('audio');
+    const startAudio = async() => {
+       // Create audio element and attach to DOM
+      audioElement.value = new Audio('/audio.mp3');
       audioElement.value.crossOrigin = 'anonymous';
-      audioElement.value.src = '/audio.mp3';
+      document.body.appendChild(audioElement.value); // ensures user gesture works
 
-      // Fetch LRC file
+      // Load LRC
       const response = await fetch('/ll.lrc');
       const lrcText = await response.text();
       lyrics.value = parseLyrics(lrcText);
 
-      // Auto-play
-      //audioElement.value.play().then(() => {
-      //  startTrackingTime();
-      //});
+      if (!audioElement.value) return;
 
-      // Stop tracking when audio ends
-
+      // This must be called in a user gesture
+      audioElement.value.play()
+        .then(() => {
+          isPlaying.value = true;
+          trackTime();
+          audioElement.value!.addEventListener('ended', stopTracking);
+        })
+        .catch(err => {
+          console.warn('Audio playback blocked', err);
+        });
       isAudioLoaded.value = true;
-      console.log('Audio and lyrics loaded');
+  
     };
 
-    const startTrackingTime = () => {
+    const trackTime = () => {
       const update = () => {
-        if (audioElement.value) {
-          currentTime.value = audioElement.value.currentTime;
-        }
+        if (audioElement.value) currentTime.value = audioElement.value.currentTime;
         rafId = requestAnimationFrame(update);
       };
       update();
     };
 
-    const stopTrackingTime = () => {
+    const stopTracking = () => {
       if (rafId !== null) cancelAnimationFrame(rafId);
       rafId = null;
     };
@@ -82,7 +74,7 @@ export default {
     const parseLyrics = (text: string): LyricLine[] => {
       const lines: LyricLine[] = [];
       text.split('\n').forEach(line => {
-        if (/^\[[a-zA-Z]+:.*\]$/.test(line)) return; // skip metadata
+        if (/^\[[a-zA-Z]+:.*\]$/.test(line)) return;
         const timestampRegex = /\[(\d{2}):(\d{2}(?:\.\d{1,3})?)\]/g;
         let match: RegExpExecArray | null;
         const timestamps: number[] = [];
@@ -98,27 +90,15 @@ export default {
       return lines.sort((a, b) => a.time - b.time);
     };
 
-    onMounted(() => {
-      loadAudioAndLyrics();
-    });
-
     onUnmounted(() => {
-      stopTrackingTime();
+      stopTracking();
       if (audioElement.value) {
         audioElement.value.pause();
         audioElement.value.src = '';
       }
     });
 
-    return {
-      lyrics,
-      currentTime,
-      audioElement,
-      isAudioLoaded,
-      loadAudioAndLyrics,
-      play,
-      isPlaying
-    };
+    return { lyrics, currentTime, audioElement, isAudioLoaded, isPlaying, startAudio };
   },
 };
 </script>
@@ -128,13 +108,29 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  height: 100vh;
 }
 
 button{
-  background: transparent;
-  border: 1px solid white;
-  border-radius: 5px;
-  padding: 5px 10px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.play-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 999;
+  padding: 12px 24px;
+  font-size: 18px;
+  background-color: #ea0062;
+  color: white;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
 }
 </style>
